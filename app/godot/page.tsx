@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Upload, Download, FileImage, Settings2, Link as LinkIcon, Unlock } from 'lucide-react';
+import { ArrowLeft, Upload, Download, Settings2, Link as LinkIcon, Unlock } from 'lucide-react';
 
 export default function GodotPage() {
   // --- STATE ---

@@ -34,7 +34,7 @@ export default function Home() {
             <Grid3X3 size={40} className="text-orange-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-200">Godot Asset Resizer</h2>
+            <h2 className="text-xl font-bold text-neutral-200">Assets Resizer</h2>
             <p className="text-sm text-neutral-400 mt-2">Force exact dimensions (e.g., 70x70) for tiles/sprites.</p>
           </div>
         </Link>

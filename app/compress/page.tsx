@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
-import { ArrowLeft, Upload, Download, RefreshCw, FileImage, Settings2 } from 'lucide-react';
+import { ArrowLeft, Upload, Download, FileImage, Settings2 } from 'lucide-react';
 
 interface CompressionSettings {
   maxSizeMB: number;
