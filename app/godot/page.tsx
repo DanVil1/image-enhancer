@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Upload, Download, Settings2, Link as LinkIcon, Unlock } from 'lucide-react';
+import { ArrowLeft, Upload, Download, Settings2, Link as LinkIcon, Unlock, Trash2 } from 'lucide-react';
 
 export default function GodotPage() {
   // --- STATE ---
@@ -156,11 +156,20 @@ export default function GodotPage() {
                       <p className="text-white">{originalFile.name}</p>
                       <p className="text-neutral-500">{originalDimensions.w}x{originalDimensions.h} → <span className="text-orange-400 font-bold">{width}x{height}</span></p>
                    </div>
-                   {compressedUrl && (
-                      <a href={compressedUrl} download={`godot_${originalFile.name}`} className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-2 rounded-lg text-sm font-medium flex gap-2 items-center">
-                        <Download size={16}/> Download
-                      </a>
-                   )}
+                   <div className="flex gap-3">
+                      <button 
+                        onClick={() => { setOriginalFile(null); setCompressedFile(null); setCompressedUrl(null); }}
+                        className="p-2 text-neutral-400 hover:text-red-400 hover:bg-neutral-800 rounded-lg transition-colors"
+                        title="Discard"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                      {compressedUrl && (
+                        <a href={compressedUrl} download={`godot_${originalFile.name}`} className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-2 rounded-lg text-sm font-medium flex gap-2 items-center">
+                          <Download size={16}/> Download
+                        </a>
+                      )}
+                   </div>
                 </div>
                 {compressedUrl && (
                   <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden p-4 flex items-center justify-center">
