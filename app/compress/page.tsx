@@ -1,24 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
-import { ArrowLeft, Upload, Download, FileImage, Settings2 } from 'lucide-react';
+import { FileImage, Download } from 'lucide-react';
 
-interface CompressionSettings {
-  maxSizeMB: number;
-  maxWidthOrHeight: number;
-  useWebWorker: boolean;
-  fileType: string;
-  initialQuality: number;
-}
+import { PageHeader, DropZone, ImagePreview, SettingsPanel } from '../components/ui';
+import { useImageUpload } from '../hooks/useImageUpload';
+import { formatFileSize, generateDownloadName } from '../lib/image';
+import { CompressionSettings } from '../types';
 
 export default function CompressPage() {
-  // State
-  const [originalFile, setOriginalFile] = useState<File | null>(null);
+  // Processed state
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
   const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
-  const [isCompressing, setIsCompressing] = useState(false);
 
   // Settings State
   const [quality, setQuality] = useState<number>(0.7);
@@ -27,8 +21,6 @@ export default function CompressPage() {
 
   // Core Compression Logic
   const handleCompression = useCallback(async (file: File) => {
-    setIsCompressing(true);
-    
     const options: CompressionSettings = {
       maxSizeMB: 1, 
       maxWidthOrHeight: maxWidth,
@@ -39,66 +31,45 @@ export default function CompressPage() {
 
     try {
       const compressedBlob = await imageCompression(file, options);
-      
-      const newFileName = `optimized_${file.name.split('.')[0]}.${format.split('/')[1]}`;
+      const newFileName = generateDownloadName(file.name, 'optimized', format);
       const newFile = new File([compressedBlob], newFileName, { type: format });
 
       setCompressedFile(newFile);
       setCompressedUrl(URL.createObjectURL(newFile));
     } catch (error) {
       console.error('Compression failed:', error);
-    } finally {
-      setIsCompressing(false);
     }
   }, [format, maxWidth, quality]);
+
+  const { file: originalFile, handleDrop, handleFileSelect, clearFile } = useImageUpload();
 
   // Re-run compression when settings change
   useEffect(() => {
     if (originalFile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleCompression(originalFile);
     }
   }, [quality, format, maxWidth, originalFile, handleCompression]);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setOriginalFile(file);
-    }
+  const handleDiscard = () => {
+    clearFile();
+    setCompressedFile(null);
+    setCompressedUrl(null);
   };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setOriginalFile(e.target.files[0]);
-    }
-  };
-
-  const formatSize = (bytes: number) => (bytes / 1024 / 1024).toFixed(2) + ' MB';
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white p-6 font-sans">
       <div className="max-w-6xl mx-auto">
         
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white">
-            <ArrowLeft size={24} />
-          </Link>
-          <h1 className="text-2xl font-bold text-indigo-400">Image Optimizer</h1>
-        </div>
+        <PageHeader title="Image Optimizer" accentColor="indigo" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* LEFT COLUMN: Settings */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-xl shadow-lg">
-              <div className="flex items-center gap-2 mb-6 text-indigo-400">
-                <Settings2 size={20} />
-                <h2 className="font-semibold">Configuration</h2>
-              </div>
-
+            <SettingsPanel title="Configuration" accentColor="indigo">
               {/* Format Selector */}
-              <div className="mb-6">
+              <div>
                 <label className="block text-sm text-neutral-400 mb-2">Output Format</label>
                 <select 
                   value={format} 
@@ -112,7 +83,7 @@ export default function CompressPage() {
               </div>
 
               {/* Quality Slider */}
-              <div className="mb-6">
+              <div>
                 <div className="flex justify-between text-sm mb-2">
                   <label className="text-neutral-400">Quality</label>
                   <span className="text-indigo-400">{Math.round(quality * 100)}%</span>
@@ -137,7 +108,7 @@ export default function CompressPage() {
                 />
                 <p className="text-xs text-neutral-600 mt-2">Resizes large images (4K+) to save space.</p>
               </div>
-            </div>
+            </SettingsPanel>
           </div>
 
           {/* RIGHT COLUMN: Workspace */}
@@ -145,26 +116,13 @@ export default function CompressPage() {
             
             {/* Drop Zone */}
             {!originalFile ? (
-              <div 
-                onDragOver={(e) => e.preventDefault()}
+              <DropZone
                 onDrop={handleDrop}
-                className="h-96 border-2 border-dashed border-neutral-800 hover:border-indigo-500 bg-neutral-900/50 hover:bg-neutral-900 rounded-2xl flex flex-col items-center justify-center gap-4 transition-all cursor-pointer group"
-              >
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleFileSelect} 
-                  className="hidden" 
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload" className="flex flex-col items-center cursor-pointer">
-                  <div className="p-5 bg-neutral-800 rounded-full group-hover:scale-110 transition-transform mb-4">
-                    <Upload size={32} className="text-neutral-400 group-hover:text-indigo-400" />
-                  </div>
-                  <p className="text-lg font-medium text-neutral-300">Drag & Drop or Click to Upload</p>
-                  <p className="text-sm text-neutral-500 mt-2">Supports JPG, PNG, WEBP</p>
-                </label>
-              </div>
+                onFileSelect={handleFileSelect}
+                label="Drag & Drop or Click to Upload"
+                sublabel="Supports JPG, PNG, WEBP"
+                accentColor="indigo"
+              />
             ) : (
               // Results View
               <div className="space-y-6">
@@ -178,10 +136,10 @@ export default function CompressPage() {
                       <div>
                         <p className="text-white font-medium truncate max-w-[200px]">{originalFile.name}</p>
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="text-neutral-500 line-through">{formatSize(originalFile.size)}</span>
+                          <span className="text-neutral-500 line-through">{formatFileSize(originalFile.size)}</span>
                           <span className="text-neutral-500">→</span>
                           {compressedFile ? (
-                            <span className="text-emerald-400 font-bold">{formatSize(compressedFile.size)}</span>
+                            <span className="text-emerald-400 font-bold">{formatFileSize(compressedFile.size)}</span>
                           ) : (
                             <span className="animate-pulse text-indigo-400">Compressing...</span>
                           )}
@@ -192,7 +150,7 @@ export default function CompressPage() {
                    {compressedUrl && compressedFile && (
                      <div className="flex gap-3">
                         <button 
-                          onClick={() => { setOriginalFile(null); setCompressedFile(null); }}
+                          onClick={handleDiscard}
                           className="px-4 py-2 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
                         >
                           New
@@ -210,17 +168,7 @@ export default function CompressPage() {
 
                 {/* Preview Image */}
                 {compressedUrl && (
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-2xl relative">
-                    <div className="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded text-xs text-white backdrop-blur-sm">
-                      Preview
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={compressedUrl} 
-                      alt="Compressed Preview" 
-                      className="w-full h-auto object-contain max-h-[500px] bg-[url('https://media.istockphoto.com/id/1303646549/vector/transparent-background-grid-seamless-pattern.jpg?s=612x612&w=0&k=20&c=N7t7k0h2d3aO4Fq2f1s3e4d5c6b7a8n9m0')] bg-repeat"
-                    />
-                  </div>
+                  <ImagePreview src={compressedUrl} alt="Compressed Preview" />
                 )}
               </div>
             )}

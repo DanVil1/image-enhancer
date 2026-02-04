@@ -1,43 +1,33 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Upload, Download, Settings2, Link as LinkIcon, Unlock, Trash2 } from 'lucide-react';
+import { Link as LinkIcon, Unlock } from 'lucide-react';
+
+import { PageHeader, DropZone, ActionBar, SettingsPanel } from '../components/ui';
+import { useImageUpload } from '../hooks/useImageUpload';
+import { getImageDimensions, generateDownloadName } from '../lib/image';
+import { ImageDimensions } from '../types';
+
+const TRANSPARENCY_GRID_URL = "https://media.istockphoto.com/id/1303646549/vector/transparent-background-grid-seamless-pattern.jpg?s=612x612&w=0&k=20&c=N7t7k0h2d3aO4Fq2f1s3e4d5c6b7a8n9m0";
 
 export default function GodotPage() {
   // --- STATE ---
-  const [originalFile, setOriginalFile] = useState<File | null>(null);
-  const [originalDimensions, setOriginalDimensions] = useState({ w: 0, h: 0 });
-  const [compressedFile, setCompressedFile] = useState<Blob | null>(null);
+  const [originalDimensions, setOriginalDimensions] = useState<ImageDimensions>({ w: 0, h: 0 });
   const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
 
   // --- SETTINGS ---
   const [format, setFormat] = useState<string>('image/webp');
-  // Godot specific: Default to 70x70 as you requested
   const [width, setWidth] = useState<number>(70);
   const [height, setHeight] = useState<number>(70);
-  const [maintainAspect, setMaintainAspect] = useState<boolean>(false); // Default false to force square
+  const [maintainAspect, setMaintainAspect] = useState<boolean>(false);
 
-  // --- LOGIC ---
-  const handleFileSelect = async (file: File) => {
-    setOriginalFile(file);
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-      setOriginalDimensions({ w: img.width, h: img.height });
-      // We do NOT overwrite width/height here because we want to keep your 70x70 preset
-    };
+  // Handle file selection with dimensions
+  const handleFileSelected = async (file: File) => {
+    const dimensions = await getImageDimensions(file);
+    setOriginalDimensions(dimensions);
   };
 
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) handleFileSelect(file);
-  };
-
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
-  };
+  const { file: originalFile, handleDrop, handleFileSelect, clearFile } = useImageUpload(handleFileSelected);
 
   const handleWidthChange = (newW: number) => {
     setWidth(newW);
@@ -66,19 +56,16 @@ export default function GodotPage() {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Godot often likes Pixel Art crispness
       ctx.imageSmoothingEnabled = false; 
-
       ctx.drawImage(imgBitmap, 0, 0, width, height);
 
       canvas.toBlob((blob) => {
           if (blob) {
-            setCompressedFile(blob);
             setCompressedUrl(URL.createObjectURL(blob));
           }
         },
         format,
-        0.9 // High quality for assets
+        0.9
       );
     } catch (error) {
       console.error(error);
@@ -92,25 +79,22 @@ export default function GodotPage() {
     return () => clearTimeout(timer);
   }, [width, height, format, originalFile, processImage]);
 
+  const handleDiscard = () => {
+    clearFile();
+    setCompressedUrl(null);
+    setOriginalDimensions({ w: 0, h: 0 });
+  };
+
   return (
     <main className="min-h-screen bg-neutral-950 text-white p-6 font-sans">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white">
-            <ArrowLeft size={24} />
-          </Link>
-          <h1 className="text-2xl font-bold text-orange-400">Asset Resizer</h1>
-        </div>
+        
+        <PageHeader title="Asset Resizer" accentColor="orange" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Settings */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-xl shadow-lg space-y-6">
-              <div className="flex items-center gap-2 text-orange-400 border-b border-neutral-800 pb-4">
-                <Settings2 size={20} />
-                <h2 className="font-semibold">Grid Settings</h2>
-              </div>
-
+            <SettingsPanel title="Grid Settings" accentColor="orange">
               {/* Dimensions */}
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -138,44 +122,49 @@ export default function GodotPage() {
                   <option value="image/png">PNG</option>
                 </select>
               </div>
-            </div>
+            </SettingsPanel>
           </div>
 
           {/* Preview */}
           <div className="lg:col-span-8">
             {!originalFile ? (
-              <div onDragOver={(e) => e.preventDefault()} onDrop={onDrop} className="h-96 border-2 border-dashed border-neutral-800 hover:border-orange-500 bg-neutral-900/50 rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer relative">
-                <input type="file" accept="image/*" onChange={onFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-                <Upload size={32} className="text-neutral-400" />
-                <p className="text-neutral-300">Drop Godot Asset</p>
-              </div>
+              <DropZone
+                onDrop={handleDrop}
+                onFileSelect={handleFileSelect}
+                label="Drop Godot Asset"
+                sublabel="Supports JPG, PNG, WEBP"
+                accentColor="orange"
+              />
             ) : (
               <div className="space-y-6">
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex justify-between items-center">
-                   <div className="text-sm">
-                      <p className="text-white">{originalFile.name}</p>
-                      <p className="text-neutral-500">{originalDimensions.w}x{originalDimensions.h} → <span className="text-orange-400 font-bold">{width}x{height}</span></p>
-                   </div>
-                   <div className="flex gap-3">
-                      <button 
-                        onClick={() => { setOriginalFile(null); setCompressedFile(null); setCompressedUrl(null); }}
-                        className="p-2 text-neutral-400 hover:text-red-400 hover:bg-neutral-800 rounded-lg transition-colors"
-                        title="Discard"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                      {compressedUrl && (
-                        <a href={compressedUrl} download={`godot_${originalFile.name}`} className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-2 rounded-lg text-sm font-medium flex gap-2 items-center">
-                          <Download size={16}/> Download
-                        </a>
-                      )}
-                   </div>
-                </div>
+                <ActionBar
+                  downloadUrl={compressedUrl || ''}
+                  downloadName={generateDownloadName(originalFile.name, 'godot', format)}
+                  onDiscard={handleDiscard}
+                  accentColor="orange"
+                >
+                  <div className="text-sm">
+                    <p className="text-white">{originalFile.name}</p>
+                    <p className="text-neutral-500">
+                      {originalDimensions.w}x{originalDimensions.h} → 
+                      <span className="text-orange-400 font-bold ml-1">{width}x{height}</span>
+                    </p>
+                  </div>
+                </ActionBar>
+
                 {compressedUrl && (
                   <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden p-4 flex items-center justify-center">
-                    {/* Explicitly using pixelated rendering style for game assets */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={compressedUrl} alt="Preview" style={{ imageRendering: 'pixelated' }} className="max-h-[400px] border border-neutral-800 bg-[url('https://media.istockphoto.com/id/1303646549/vector/transparent-background-grid-seamless-pattern.jpg?s=612x612&w=0&k=20&c=N7t7k0h2d3aO4Fq2f1s3e4d5c6b7a8n9m0')] bg-repeat" />
+                    <img 
+                      src={compressedUrl} 
+                      alt="Preview" 
+                      style={{ 
+                        imageRendering: 'pixelated',
+                        backgroundImage: `url('${TRANSPARENCY_GRID_URL}')`,
+                        backgroundRepeat: 'repeat'
+                      }} 
+                      className="max-h-[400px] border border-neutral-800" 
+                    />
                   </div>
                 )}
               </div>
