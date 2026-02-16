@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Image Enhancer",
-  description: "Personal image optimizer and background remover.",
+  title: "Pict",
+  description: "Image Web Tools.",
 };
 
 export default function RootLayout({

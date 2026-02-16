@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center p-8">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-2">Image Enhancer</h1>
+        <h1 className="text-4xl font-bold mb-2">Pict</h1>
         <p className="text-neutral-500">Select a utility to start</p>
       </div>
 
