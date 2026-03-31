@@ -6,7 +6,7 @@ interface ToolCardProps {
   icon: ReactNode;
   title: string;
   description: string;
-  accentColor: 'indigo' | 'orange' | 'emerald';
+  accentColor: 'indigo' | 'orange' | 'emerald' | 'pink';
 }
 
 const colorConfig = {
@@ -24,6 +24,11 @@ const colorConfig = {
     border: 'hover:border-emerald-500',
     iconBg: 'bg-emerald-500/10 group-hover:bg-emerald-500/20',
     iconText: 'text-emerald-400',
+  },
+  pink: {
+    border: 'hover:border-pink-500',
+    iconBg: 'bg-pink-500/10 group-hover:bg-pink-500/20',
+    iconText: 'text-pink-400',
   },
 };
 

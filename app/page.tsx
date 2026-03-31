@@ -1,4 +1,4 @@
-import { ImageDown, Layers, Grid3X3 } from 'lucide-react';
+import { ImageDown, Layers, Grid3X3, Images } from 'lucide-react';
 import { ToolCard } from './components/home';
 
 export default function Home() {
@@ -9,7 +9,7 @@ export default function Home() {
         <p className="text-neutral-500">Select a utility to start</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
         <ToolCard
           href="/compress"
           icon={<ImageDown size={40} />}
@@ -19,10 +19,18 @@ export default function Home() {
         />
 
         <ToolCard
+          href="/batch"
+          icon={<Images size={40} />}
+          title="Batch Optimizer"
+          description="Compress multiple images at once."
+          accentColor="pink"
+        />
+
+        <ToolCard
           href="/godot"
           icon={<Grid3X3 size={40} />}
           title="Assets Resizer"
-          description="Force exact dimensions (e.g., 70x70) for tiles/sprites."
+          description="Force exact dimensions for tiles/sprites."
           accentColor="orange"
         />
 

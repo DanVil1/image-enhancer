@@ -4,13 +4,14 @@ import { ReactNode } from 'react';
 interface SettingsPanelProps {
   title?: string;
   children: ReactNode;
-  accentColor?: 'indigo' | 'orange' | 'emerald';
+  accentColor?: 'indigo' | 'orange' | 'emerald' | 'pink';
 }
 
 const colorClasses = {
   indigo: 'text-indigo-400',
   orange: 'text-orange-400',
   emerald: 'text-emerald-400',
+  pink: 'text-pink-400',
 };
 
 export const SettingsPanel = ({

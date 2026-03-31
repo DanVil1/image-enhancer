@@ -8,19 +8,22 @@ interface DropZoneProps {
   label?: string;
   sublabel?: string;
   inputId?: string;
-  accentColor?: 'indigo' | 'orange' | 'emerald';
+  accentColor?: 'indigo' | 'orange' | 'emerald' | 'pink';
+  multiple?: boolean;
 }
 
 const hoverBorderColors = {
   indigo: 'hover:border-indigo-500',
   orange: 'hover:border-orange-500',
   emerald: 'hover:border-emerald-500',
+  pink: 'hover:border-pink-500',
 };
 
 const hoverIconColors = {
   indigo: 'group-hover:text-indigo-400',
   orange: 'group-hover:text-orange-400',
   emerald: 'group-hover:text-emerald-400',
+  pink: 'group-hover:text-pink-400',
 };
 
 export const DropZone = ({
@@ -30,6 +33,7 @@ export const DropZone = ({
   sublabel = 'Supports JPG, PNG, WEBP',
   inputId = 'file-upload',
   accentColor = 'indigo',
+  multiple = false,
 }: DropZoneProps) => {
   return (
     <div
@@ -43,6 +47,7 @@ export const DropZone = ({
         onChange={onFileSelect}
         className="hidden"
         id={inputId}
+        multiple={multiple}
       />
       <label htmlFor={inputId} className="flex flex-col items-center cursor-pointer">
         <div className="p-5 bg-neutral-800 rounded-full group-hover:scale-110 transition-transform mb-4">

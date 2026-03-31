@@ -3,13 +3,14 @@ import { ArrowLeft } from 'lucide-react';
 
 interface PageHeaderProps {
   title: string;
-  accentColor?: 'indigo' | 'orange' | 'emerald';
+  accentColor?: 'indigo' | 'orange' | 'emerald' | 'pink';
 }
 
 const colorClasses = {
   indigo: 'text-indigo-400',
   orange: 'text-orange-400',
   emerald: 'text-emerald-400',
+  pink: 'text-pink-400',
 };
 
 export const PageHeader = ({ title, accentColor = 'indigo' }: PageHeaderProps) => {
