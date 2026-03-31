@@ -1,15 +1,17 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
+type AccentColor = 'indigo' | 'orange' | 'emerald' | 'pink' | 'cyan' | 'red' | 'violet' | 'amber' | 'sky' | 'teal' | 'slate';
+
 interface ToolCardProps {
   href: string;
   icon: ReactNode;
   title: string;
   description: string;
-  accentColor: 'indigo' | 'orange' | 'emerald' | 'pink';
+  accentColor: AccentColor;
 }
 
-const colorConfig = {
+const colorConfig: Record<AccentColor, { border: string; iconBg: string; iconText: string }> = {
   indigo: {
     border: 'hover:border-indigo-500',
     iconBg: 'bg-indigo-500/10 group-hover:bg-indigo-500/20',
@@ -29,6 +31,41 @@ const colorConfig = {
     border: 'hover:border-pink-500',
     iconBg: 'bg-pink-500/10 group-hover:bg-pink-500/20',
     iconText: 'text-pink-400',
+  },
+  cyan: {
+    border: 'hover:border-cyan-500',
+    iconBg: 'bg-cyan-500/10 group-hover:bg-cyan-500/20',
+    iconText: 'text-cyan-400',
+  },
+  red: {
+    border: 'hover:border-red-500',
+    iconBg: 'bg-red-500/10 group-hover:bg-red-500/20',
+    iconText: 'text-red-400',
+  },
+  violet: {
+    border: 'hover:border-violet-500',
+    iconBg: 'bg-violet-500/10 group-hover:bg-violet-500/20',
+    iconText: 'text-violet-400',
+  },
+  amber: {
+    border: 'hover:border-amber-500',
+    iconBg: 'bg-amber-500/10 group-hover:bg-amber-500/20',
+    iconText: 'text-amber-400',
+  },
+  sky: {
+    border: 'hover:border-sky-500',
+    iconBg: 'bg-sky-500/10 group-hover:bg-sky-500/20',
+    iconText: 'text-sky-400',
+  },
+  teal: {
+    border: 'hover:border-teal-500',
+    iconBg: 'bg-teal-500/10 group-hover:bg-teal-500/20',
+    iconText: 'text-teal-400',
+  },
+  slate: {
+    border: 'hover:border-slate-500',
+    iconBg: 'bg-slate-500/10 group-hover:bg-slate-500/20',
+    iconText: 'text-slate-400',
   },
 };
 

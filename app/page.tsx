@@ -1,4 +1,16 @@
-import { ImageDown, Layers, Grid3X3, Images } from 'lucide-react';
+import { 
+  ImageDown, 
+  Layers, 
+  Grid3X3, 
+  Images, 
+  RefreshCw, 
+  ShieldOff, 
+  Crop, 
+  AppWindow, 
+  Code, 
+  Palette, 
+  EyeOff 
+} from 'lucide-react';
 import { ToolCard } from './components/home';
 
 export default function Home() {
@@ -9,7 +21,7 @@ export default function Home() {
         <p className="text-neutral-500">Select a utility to start</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl">
         <ToolCard
           href="/compress"
           icon={<ImageDown size={40} />}
@@ -40,6 +52,62 @@ export default function Home() {
           title="Remove Background"
           description="Clean logos or items using local AI."
           accentColor="emerald"
+        />
+
+        <ToolCard
+          href="/convert"
+          icon={<RefreshCw size={40} />}
+          title="Format Converter"
+          description="Convert between PNG, JPG, WebP."
+          accentColor="cyan"
+        />
+
+        <ToolCard
+          href="/metadata"
+          icon={<ShieldOff size={40} />}
+          title="Metadata Stripper"
+          description="Remove EXIF data for privacy."
+          accentColor="red"
+        />
+
+        <ToolCard
+          href="/crop"
+          icon={<Crop size={40} />}
+          title="Image Cropper"
+          description="Crop with preset aspect ratios."
+          accentColor="violet"
+        />
+
+        <ToolCard
+          href="/favicon"
+          icon={<AppWindow size={40} />}
+          title="Favicon Generator"
+          description="Generate all favicon sizes."
+          accentColor="amber"
+        />
+
+        <ToolCard
+          href="/base64"
+          icon={<Code size={40} />}
+          title="Image to Base64"
+          description="Convert images to data URLs."
+          accentColor="sky"
+        />
+
+        <ToolCard
+          href="/palette"
+          icon={<Palette size={40} />}
+          title="Color Palette"
+          description="Extract dominant colors."
+          accentColor="teal"
+        />
+
+        <ToolCard
+          href="/blur"
+          icon={<EyeOff size={40} />}
+          title="Blur / Pixelate"
+          description="Censor sensitive areas."
+          accentColor="slate"
         />
       </div>
     </main>
